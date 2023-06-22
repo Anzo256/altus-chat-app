@@ -13,6 +13,7 @@ import {useAuth} from "@/context/authContext";
 import { useRouter } from "next/router";
 import { doc, setDoc } from 'firebase/firestore';
 import {profileColors} from "@/utils/constants"
+import Loader from '@/components/Loader';
 const gProvider = new GoogleAuthProvider();
 const fProvider = new FacebookAuthProvider();
 
@@ -87,7 +88,7 @@ const Register = () => {
 
 
   return isLoading || (!isLoading && currentUser) ? (
-    "loader.."
+    <Loader/>
   ) : (
     <div className='h-[100vh]
     flex 

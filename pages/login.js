@@ -16,6 +16,8 @@ import { IoLogoGoogle, IoLogoFacebook } from "react-icons/io";
 import  ToastMessage from "@/components/ToastMessage";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import Loader from "@/components/Loader";
+
 
 const gProvider = new GoogleAuthProvider();
 const fProvider = new FacebookAuthProvider();
@@ -92,7 +94,7 @@ const Login = () => {
 
       return isLoading || (!isLoading && 
         currentUser) ? (
-        "loader...."
+         <Loader/>
     ) : (
         <div className="h-[100vh] flex justify-center items-center bg-c1">
             <ToastMessage/>
