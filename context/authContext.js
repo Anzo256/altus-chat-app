@@ -29,7 +29,7 @@ export const UserProvider = ({children}) =>{
     const signOut = () =>{
         authSignOut(auth).then(() =>clear());
     }
-//console.log (authSignOut(auth));
+  //console.log (authSignOut(auth));
  
     useEffect(() =>{
       const unsubscribe = onAuthStateChanged( auth,

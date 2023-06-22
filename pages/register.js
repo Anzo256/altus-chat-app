@@ -1,12 +1,94 @@
 import Link from 'next/link';
-import React from 'react'
+import React, { useEffect } from 'react'
 import {IoLogoGoogle, IoLogoFacebook} from "react-icons/io";
+import { auth, db } from "@/firebase/firebase";
+import {
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  updateProfile
+} from "firebase/auth";
+import {useAuth} from "@/context/authContext";
+import { useRouter } from "next/router";
+import { doc, setDoc } from 'firebase/firestore';
+import {profileColors} from "@/utils/constants"
+const gProvider = new GoogleAuthProvider();
+const fProvider = new FacebookAuthProvider();
 
 
 
 
 const Register = () => {
-  return (
+      const router = useRouter();
+      const {currentUser, isLoading} = useAuth();
+
+      useEffect(() => {
+        if (!isLoading && currentUser) {
+            router.push("/");
+        }
+    }, [currentUser, isLoading]);
+
+
+    const signInWithFacebook = async () =>{
+      try {
+         await signInWithPopup(auth, fProvider);
+        
+      } catch (error) {
+         console.error("An error occured", error);
+      }
+    };
+
+
+    const signInWithGoogle = async () =>{
+      try {
+          await signInWithPopup(auth, gProvider);
+      } catch (error) {
+         console.error(error); 
+      }
+    }
+
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      const displayName = e.target[0].value;
+      const email = e.target[1].value;
+      const password = e.target[2].value;
+      const colorIndex = Math.floor(Math.random() * profileColors.length)
+
+      try {
+       const {user} =  await 
+       createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+        );
+        
+        await setDoc(doc(db, "users", user.uid),{
+          uid: user.uid,
+          displayName,
+          email,
+          color:profileColors[colorIndex]
+        })
+
+        await setDoc(doc(db, "userChats", user.uid), {});
+
+        await updateProfile(user,{
+          displayName,
+        })
+        
+
+        router.push("/");
+      } catch (error) {
+        console.error(error);
+        
+      }
+  };
+
+
+  return isLoading || (!isLoading && currentUser) ? (
+    "loader.."
+  ) : (
     <div className='h-[100vh]
     flex 
     justify-center
@@ -24,7 +106,7 @@ const Register = () => {
       <div className='flex items-center gap-2 w-full mt-10 mb-5'>
            <div className='bg-gradient-to-r
            from-indigo-500 via-purple-500 to-pink-500 w-1/2 h-14 
-           rounded-md cursor-pointer p-[1px]'>
+           rounded-md cursor-pointer p-[1px]' onClick={signInWithGoogle}>
               <div className='flex items-center
               justify-center gap-3 text-white font-semibold bg-c1 w-full
               h-full rounded-md'>
@@ -35,7 +117,7 @@ const Register = () => {
            
            <div className='bg-gradient-to-r
            from-indigo-500 via-purple-500 to-pink-500 w-1/2 h-14 
-           rounded-md cursor-pointer p-[1px]'>
+           rounded-md cursor-pointer p-[1px]' onClick={signInWithFacebook}>
               <div className='flex items-center
               justify-center gap-3 text-white font-semibold bg-c1 w-full
               h-full rounded-md'>
@@ -50,7 +132,7 @@ const Register = () => {
               <span className='w-5 h-[1px] bg-c3'></span>
             </div>
 
-            <form className='flex flex-col items-center gap-3
+            <form onSubmit={handleSubmit} className='flex flex-col items-center gap-3
             w-[500px] mt-5'>
 
                 <input
