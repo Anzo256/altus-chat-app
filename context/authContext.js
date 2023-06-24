@@ -1,7 +1,7 @@
 import {  createContext, useContext, useEffect, useState} from "react"
 import {onAuthStateChanged, signOut as authSignOut} from "firebase/auth";
 import {auth, db} from "@/firebase/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const UserContext = createContext();
 
@@ -11,9 +11,19 @@ export const UserProvider = ({children}) =>{
     const [isLoading, setIsLoading] = useState(true);
 
 
-    const clear = () =>{
-        setCurrentUser(null);
-        setIsLoading(false);
+    const clear = async() =>{
+        try {
+             if (currentUser) {
+                await updateDoc(doc(db,"users",currentUser.uid),{
+                    isOnline:false,
+                });  
+             }
+            setCurrentUser(null);
+            setIsLoading(false);
+        } catch (error) {
+            console.error(error);
+        }
+      
     }
 
     const authStateChanged = async (user) =>{
@@ -23,7 +33,16 @@ export const UserProvider = ({children}) =>{
            return; 
         }
 
-       const userDoc =  await getDoc(doc(db, "users", user.uid))
+    const userDocExist = await getDoc(doc(db,
+        "users", user.uid))
+        if (userDocExist.exists()) {
+            await updateDoc(doc(db,'users',user.uid),{
+                isOnline:true,
+            });
+        }
+   
+
+    const userDoc =  await getDoc(doc(db, "users", user.uid))
 
         setCurrentUser(userDoc.data());
         setIsLoading(false);
