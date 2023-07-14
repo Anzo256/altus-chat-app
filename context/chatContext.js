@@ -17,6 +17,14 @@ export const ChatContextProvider = ({children}) =>{
      const [isTyping,setIsTyping]= useState(null);
      const [imageViewer, setImageViewer] = useState(null);
 
+    const resetFooterStates = () =>{
+        setInputText("")
+        setAttachment(null)
+        setAttachmentPreview(null)
+        setEditMsg(null)
+        setImageViewer(null)
+    }
+
      ///using reducers
      const INITIAL_STATE ={
          chatId:"",
@@ -32,7 +40,10 @@ export const ChatContextProvider = ({children}) =>{
                    payload.uid ? currentUser.uid + 
                    action.payload.uid : action.
                    payload.uid + currentUser.uid,
-                }
+                };
+
+            case "EMPTY":
+                return  INITIAL_STATE;   
             default:
                 return state
          }
@@ -55,7 +66,9 @@ export const ChatContextProvider = ({children}) =>{
             attachmentPreview, setAttachmentPreview,
             editMsg, setEditMsg,
             isTyping,setIsTyping,
-            imageViewer, setImageViewer
+            imageViewer, 
+            setImageViewer,
+            resetFooterStates
 
         }}>
             {children}

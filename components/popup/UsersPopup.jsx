@@ -3,7 +3,7 @@ import PopupWrapper from './PopupWrapper'
 import { useAuth } from '@/context/authContext'
 import { useChatContext } from '@/context/chatContext'
 import Avatar from '../Avatar'
-import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
+import { deleteField, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
 import { db } from '@/firebase/firebase'
 import Search from '../Search'
 
@@ -61,6 +61,10 @@ const UsersPopup = (props) => {
           })
           }else{
              //chat document exists
+
+             await updateDoc(doc(db,'userChats',currentUser.uid),{
+                  [combinedId + ".chatDeleted"]: deleteField()
+             })
           }
 
           dispatch({type: 'CHANGE_USER', payload: user})
